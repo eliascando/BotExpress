@@ -16,7 +16,13 @@ Se utiliza también la librería open source para utilizar un cliente de whatsap
 Tiene manejo de errores y envío de correos cuando ocurren excepciones inesperadas o desconexiones por parte del cliente de whatsapp.
 
 ### Captura del chat
-(captura)
+<img src="https://github.com/eliascando/BotExpress/assets/75767835/cebb6335-4074-49d4-8493-58aa66cc6a61" width="350px">
+
+### Logotipo de BotExpress
+<img src="https://github.com/eliascando/BotExpress/assets/75767835/75afd9cc-57a1-406c-8bbe-a89ecd8e0715" width="350px">
+
+
+
 
 ### Para ejecutar el proyecto en desarrollo
 
