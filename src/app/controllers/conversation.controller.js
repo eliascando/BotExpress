@@ -2,6 +2,7 @@ const Conversation = require('../models/conversation.model');
 const Config = require('../models/config.model');
 const { getConfig } = require('./config.controller');
 const getResponse = require('../services/openai');
+const { formatNumber } = require('../utils/contact.utils');
 
 const newMessage = async (newMessage) => {
     const { contact, message } = newMessage;
@@ -26,10 +27,16 @@ const newMessage = async (newMessage) => {
                 await Conversation.findOneAndUpdate({ number: contact.number }, { messages: messages }).exec();
                 return (response.content);
             }else{
-                let primeraConversacion = [{
-                    role: "system",
-                    content: `Eres un asistente personal, y te llamas Bot Express, el nombre de tu usuario es ${contact.name} el cual es su nombre real ${contact.birthday !== null ? "y su cumpleaños es " + contact.birthday : ""}, recuerda ser amable con los usuarios y ayudarlos en lo que necesiten sin llegar a ser tan robot, recuerda que eres un asistente personal y no un robot, si no sabes que responder puedes decir "No entendí tu pregunta, ¿puedes reformularla?`
-                }];	
+                let primeraConversacion = [
+                    {
+                        role: "system",
+                        content: `Eres un asistente personal, y te llamas Bot Express, el nombre de tu usuario es ${contact.name} el cual es su nombre real ${contact.birthday !== null ? "y su cumpleaños es " + contact.birthday : ""}, recuerda ser amable con los usuarios y ayudarlos en lo que necesiten sin llegar a ser tan robot, recuerda que eres un asistente personal y no un robot, si el usuario te pregunta que puedes hacer, le puedes decir lo que sabes hacer y adicionalmente le indicas el comando /help.`
+                    },
+                    {
+                        role: "system",
+                        content:"Only use the functions you have been provided with."
+                    }
+                ];	
 
                 let nuevoMensaje = {
                     role: "user",
@@ -50,10 +57,16 @@ const newMessage = async (newMessage) => {
             }
         }else{
             cleanConversation(contact.number);
-            let messages = [{
-                role: "system",
-                content: `Eres un bot que responde una pregunta a la vez es decir no tienes memoria, eres como dory de buscando a nemo multiplicado por mil y te llamas Bot Express, el nombre de tu usuario es ${contact.name} el cual es su nombre real ${contact.birthday !== null ? "y su cumpleaños es " + contact.birthday : ""}, recuerda ser amable con los usuarios y ayudarlos en lo que necesiten.`
-            }];
+            let messages = [
+                {
+                    role: "system",
+                    content: `Eres un bot que responde una pregunta a la vez es decir no tienes memoria, eres como dory de buscando a nemo multiplicado por mil y te llamas Bot Express, el nombre de tu usuario es ${contact.name} el cual es su nombre real ${contact.birthday !== null ? "y su cumpleaños es " + contact.birthday : ""}, recuerda ser amable con los usuarios y ayudarlos en lo que necesiten, si el usuario te pregunta que puedes hacer, le puedes decir lo que sabes hacer y adicionalmente le indicas el comando /help.`
+                },
+                {
+                    role: "system",
+                    content:"Only use the functions you have been provided with."
+                }
+            ];
 
             let nuevoMensaje = {
                 role: "user",
@@ -78,7 +91,9 @@ const cleanConversation = async (number) => {
             message: "Conversación borrada"
         });
     }catch(error){
-        throw new Error(error);
+        return ({
+            message: "Conversación no encontrada"
+        });
     }
 }
 
@@ -97,7 +112,7 @@ const persistenceOff = async (number) => {
     try{
         await Config.findOneAndUpdate({ numberContact: number }, { hasPersistence: false }).exec();
         return ({
-            message: `Persistencia desactivada para el número ${number}`
+            message: `Persistencia desactivada para el número ${formatNumber(number)}`
         });
     }
     catch(error){
@@ -109,7 +124,7 @@ const persistenceOn = async (number) => {
     try{
         await Config.findOneAndUpdate({ numberContact: number }, { hasPersistence: true }).exec();
         return ({
-            message: `Persistencia activada para el número ${number}`
+            message: `Persistencia activada para el número ${formatNumber(number)}`
         });
     }
     catch(error){
@@ -121,7 +136,7 @@ const gpt4Model = async(numero) => {
     try{
         await Config.findOneAndUpdate({ numberContact: numero }, { gptModel: 'gpt-4' }).exec();
         return ({
-            message: `Modelo cambiado a GPT-4 para el número ${numero}`
+            message: `Modelo cambiado a GPT-4 para el número ${formatNumber(numero)}`
         });
     }
     catch(error){
@@ -133,11 +148,22 @@ const gpt3Model = async(numero) => {
     try{
         await Config.findOneAndUpdate({ numberContact: numero }, { gptModel: 'gpt-3.5-turbo' }).exec();
         return ({
-            message: `Modelo cambiado a GPT-3.5 para el número ${numero}`
+            message: `Modelo cambiado a GPT-3.5 para el número ${formatNumber(numero)}`
         });
     }
     catch(error){
         throw new Error(error);
+    }
+}
+
+const countMessages = async (numero) => {
+    try{
+        let conversation = await Conversation.findOne({ number: numero }).exec();
+        let conversationMessages = conversation.messages;
+        let cantidad = conversationMessages.length;
+        return ({ message: `Hay ${cantidad} mensajes en esta conversación`});
+    }catch(error){
+        return ({ message: `No hay mensajes en esta conversación`});
     }
 }
 
@@ -148,5 +174,6 @@ module.exports = {
     persistenceOff,
     persistenceOn,
     gpt4Model,
-    gpt3Model
+    gpt3Model,
+    countMessages
 };

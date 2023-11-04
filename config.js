@@ -8,6 +8,18 @@ const enviroment = {
     MAIL_USER : process.env.MAIL_USER || '',
     MAIL_PASS : process.env.MAIL_PASS || '',
     DESTINATARIOS : process.env.DESTINATARIOS || '',
+    WEATHER_API_URL: process.env.WEATHER_API_URL || '',
+    WEATHER_API_KEY: process.env.WEATHER_API_KEY || '',
+    EXCHANGE_API_URL: process.env.EXCHANGE_API_URL || '',
+    EXCHANGE_API_KEY: process.env.EXCHANGE_API_KEY || '',
 }
+
+//validacion cuando no se definen las variables de entorno
+const keys = Object.keys(enviroment);
+keys.forEach(key => {
+    if(!enviroment[key] || enviroment[key] === ''){
+        throw new Error(`${key} no definido`);
+    }
+});
 
 module.exports = enviroment;

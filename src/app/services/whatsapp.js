@@ -18,14 +18,6 @@ client.on('authenticated', () => {
 client.on('ready', () => {
     console.log('Client is ready 🚀');
     console.log("Listening messages... 📩");
-    
-    let html = `
-        <h1>✅ El servidor se ha iniciado correctamente ✅</h1>
-    `;
-    let subject = "WhatsApp Bot - Connected";
-    sendMail(subject, html);
 });
-
-client.initialize();
 
 module.exports = client;

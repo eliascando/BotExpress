@@ -1,5 +1,6 @@
 const Contact = require('../models/contact.model');
 const Config = require('../models/config.model');
+const { formatNumber } = require('../utils/contact.utils');
 
 const saveContact = async (contact) => {
     try{
@@ -17,21 +18,17 @@ const saveContact = async (contact) => {
     }
 }
 
-const getContacts = async () => {
-    try{
+const getContacts = async (number) => {
+    try {
         let contacts = await Contact.find({}).sort({ name: 1 }).exec();
 
-        let contactos = contacts.map((contact) => ({
-            name: contact.name,
-            number: contact.number,
-            admin: contact.admin,
-            birthday: contact.birthday,
-            sex: contact.sex
-        }));
+        let contactList = contacts.map(contact => 
+            `\nNombre: *${contact.name}*\nNúmero: *${formatNumber(contact.number)}*${contact.admin ? '\n*Administrador*: Sí' : ''}\n-------------------------`
+        ).join('');
 
-        return (contactos);
+        return ({ message: `*Lista de contactos:*\n${contactList}`});
     }catch(error){
-        res.status(500).send({ error });
+        throw new Error(error);
     }
 }
 

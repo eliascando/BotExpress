@@ -33,5 +33,14 @@ const extractVCardDetails = (vCardString) => {
     };
 }  
 
-module.exports = extractVCardDetails;
+const formatNumber = (number) => {
+    let numero = number.split("@")[0];
+    numero = "0"+numero.substring(3);
+    return numero;
+}
+
+module.exports = {
+    extractVCardDetails,
+    formatNumber
+};
   

@@ -1,4 +1,5 @@
 const Config = require('../models/config.model');
+const Contact = require('../models/contact.model');
 
 const getConfig = async(number) =>{
     let config = await Config.findOne({ numberContact: number }).exec();
@@ -15,11 +16,17 @@ const getConfig = async(number) =>{
         }
         let gptModel = config.gptModel;
         let hasPersistence = config.hasPersistence;
+
+        //obtener nombre
+        let contact = await Contact.findOne({ number: number }).exec();
+
+        let nombre = contact.name;
+        let isAdmin = contact.admin;
     
     let configuration = {
         gptModel,
         hasPersistence,
-        message: `La configuración actual es: \nModelo: ${gptModel} ${hasPersistence ? '\nPersistencia activada' : '\nPersistencia desactivada'}`
+        message: `La configuración actual para *${nombre}* es: \n*Modelo:* ${gptModel} ${hasPersistence ? '\n*Persistencia*: Activa' : '\n*Persistencia*: Inactiva' } ${isAdmin ? '\n*Administrador*: Si' : '' }`
     }
     return (configuration);
 }
